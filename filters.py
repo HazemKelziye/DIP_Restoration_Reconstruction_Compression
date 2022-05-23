@@ -1,23 +1,42 @@
 # import cv2
 # import os
-
 # import matplotlib.pyplot as plt
 import numpy as np
-
-
-# from scipy import stats
-
+import cv2 as cv
+import skimage
 
 def gaussian(image):
     row, col, ch = image.shape
-    mean = 50
+    mean = 0.2
     var = 10
     sigma = var ** 0.5
     gauss = np.random.normal(mean, sigma, (row, col, ch))
     gauss = gauss.reshape(row, col, ch)
-    noisy = image + gauss
-    noisy = np.array(noisy, dtype=np.uint8)
+    gauss = np.array(gauss, dtype=np.uint8)
+    noisy = cv.add(image, gauss)
     return noisy
+
+def sp_noise(image, prob):
+    '''
+    Add salt and pepper noise to image
+    prob: Probability of the noise
+    '''
+    output = image.copy()
+    if len(image.shape) == 2:
+        black = 0
+        white = 255
+    else:
+        colorspace = image.shape[2]
+        if colorspace == 3:  # RGB
+            black = np.array([0, 0, 0], dtype='uint8')
+            white = np.array([255, 255, 255], dtype='uint8')
+        else:  # RGBA
+            black = np.array([0, 0, 0, 255], dtype='uint8')
+            white = np.array([255, 255, 255, 255], dtype='uint8')
+    probs = np.random.random(image.shape[:2])
+    image[probs < (prob / 2)] = black
+    image[probs > 1 - (prob / 2)] = white
+    return image
 
 # def salt_pepper(image):
 #     prob = 0.01
