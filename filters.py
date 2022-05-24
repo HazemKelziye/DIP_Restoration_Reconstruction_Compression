@@ -1,6 +1,20 @@
 import numpy as np
 import cv2 as cv
 import random
+from PIL import Image
+from PIL import ImageFilter
+
+import numpy as np
+from skimage import data, img_as_float, img_as_ubyte, exposure, io, color
+from skimage.io import imread
+from skimage.exposure import cumulative_distribution
+from skimage.restoration import denoise_bilateral, denoise_nl_means,estimate_sigma
+#from skimage.measure import compare_psnr
+from skimage.util import random_noise
+from skimage.color import rgb2gray
+from PIL import Image, ImageEnhance, ImageFilter
+from scipy import ndimage, misc
+import matplotlib.pylab as pylab
 
 #Degradation (adding noise)
 def noise_gaussian(image, mean, var):
@@ -71,25 +85,25 @@ def bilateral_filter(image, d=15, siamaColor=75, sigamSpace=75):
 
     return denoised
 
-def max_min_filter(img, K_size):
+def max_filter(img, K_size):
     '''Min filter used to find the darkest points in an image'''
-    height, width = img.shape
+    height, width, ch = img.shape
     pad = K_size // 2
     out_img = img.copy()
     pad_img = np.zeros((height + pad*2, width + pad*2), dtype=np.uint8)
     pad_img[pad: pad+height, pad: pad+width] = img.copy()
     for y in range(height):
         for x in range(width):
-            out_img[y,x] = np.max(pad_img[y:y+K_size, x:x+K_size]) - np.min(pad_img[y:y+K_size, x:x+K_size])
+            out_img[y,x] = np.max(pad_img[y:y+K_size, x:x+K_size])
     return out_img
-
-def max_min_filter(img, K_size):
-    height, width = img.shape
-    pad = K_size // 2
-    out_img = img.copy()
-    pad_img = np.zeros((height + pad*2, width + pad*2), dtype=np.uint8)
-    pad_img[pad: pad+height, pad: pad+width] = img.copy()
-    for y in range(height):
-        for x in range(width):
-            out_img[y,x] = np.max(pad_img[y:y+K_size, x:x+K_size]) - np.min(pad_img[y:y+K_size, x:x+K_size])
-    return out_img
+#
+# def max_min_filter(img, K_size):
+#     height, width = img.shape
+#     pad = K_size // 2
+#     out_img = img.copy()
+#     pad_img = np.zeros((height + pad*2, width + pad*2), dtype=np.uint8)
+#     pad_img[pad: pad+height, pad: pad+width] = img.copy()
+#     for y in range(height):
+#         for x in range(width):
+#             out_img[y,x] = np.max(pad_img[y:y+K_size, x:x+K_size]) - np.min(pad_img[y:y+K_size, x:x+K_size])
+#     return out_img
